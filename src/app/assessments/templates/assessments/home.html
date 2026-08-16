@@ -1,0 +1,118 @@
+{% extends "assessments/base.html" %}
+
+{% block content %}
+<section class="hero">
+    <p class="eyebrow">Course work</p>
+    <h1>Homeworks and exams</h1>
+    <p>Select an assessment to begin, continue, or review released solutions.</p>
+</section>
+
+<section class="git-panel">
+    <div class="git-panel-heading">
+        <div>
+            <p class="eyebrow">Repository</p>
+            <h2>GitHub synchronization</h2>
+        </div>
+        {% if git_status.ready %}
+            <span class="status status-solution">Git configured</span>
+        {% else %}
+            <span class="status status-closed">Setup needed</span>
+        {% endif %}
+    </div>
+
+    <p>{{ git_status.message }}</p>
+    {% if git_status.origin %}
+        <p class="git-detail">
+            <strong>Origin:</strong> <code>{{ git_status.origin }}</code><br>
+            <strong>Branch:</strong> <code>{{ git_status.branch }}</code>
+            · <strong>Local changes:</strong> {{ git_status.changed_files }}
+            {% if git_status.ahead %} · <strong>Ahead:</strong> {{ git_status.ahead }}{% endif %}
+            {% if git_status.behind %} · <strong>Behind:</strong> {{ git_status.behind }}{% endif %}
+        </p>
+    {% endif %}
+
+    <div class="git-actions">
+        <form method="post" action="{% url 'get_updates' %}">
+            {% csrf_token %}
+            <button class="button" type="submit"{% if not git_status.ready %} disabled{% endif %}>
+                Get updates from instructor
+            </button>
+        </form>
+        <span>Downloads updates from the <code>main</code> branch without creating a merge commit.</span>
+    </div>
+</section>
+
+{% if assessments %}
+<div class="assessment-grid">
+    {% for item in assessments %}
+    <article class="assessment-card">
+        <div class="card-topline">
+            <span class="kind-badge">{{ item.kind }}</span>
+            {% if item.solution_available %}
+                <span class="status status-solution">Solutions available</span>
+            {% elif item.past_due %}
+                <span class="status status-closed">Closed</span>
+            {% elif item.submitted %}
+                <span class="status status-saved">Answers saved</span>
+            {% else %}
+                <span class="status">Not started</span>
+            {% endif %}
+        </div>
+        <h2>{{ item.title }}</h2>
+        {% if item.due_at %}
+        <p class="due-date">
+            Due: {{ item.due_at|date:"F j, Y, g:i A T" }}
+        </p>
+        {% endif %}
+        {% if item.description %}<p>{{ item.description }}</p>{% endif %}
+
+        {% if item.report and item.report.complete %}
+        <p class="score-line">
+            Score: <strong>{{ item.report.points_awarded|floatformat:-2 }}/{{ item.report.total_points|floatformat:-2 }}</strong>
+            ({{ item.report.percentage }}%)
+        </p>
+        {% elif item.report %}
+        <p class="score-line">
+            <strong>{{ item.report.points_awarded|floatformat:-2 }}</strong> points awarded;
+            {{ item.report.pending_points|floatformat:-2 }} points pending.
+        </p>
+        {% endif %}
+
+        <div class="card-actions">
+            <a class="button" href="{% url 'assessment' item.id %}">
+                {% if item.solution_available %}
+                    Review
+                {% elif item.past_due %}
+                    View
+                {% elif item.submitted %}
+                    Continue
+                {% else %}
+                    Open
+                {% endif %}
+            </a>
+
+            {% if not item.solution_available and not item.past_due %}
+            <form method="post" action="{% url 'submit_assessment' item.id %}">
+                {% csrf_token %}
+                <button
+                    class="button button-primary"
+                    type="submit"
+                    {% if not item.can_submit or not git_status.ready %}disabled{% endif %}>
+                    Submit to GitHub
+                </button>
+            </form>
+            {% endif %}
+        </div>
+        {% if not item.submitted and not item.past_due and not item.solution_available %}
+            <p class="action-hint">Save answers before submitting.</p>
+        {% endif %}
+    </article>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <h2>No assessments yet</h2>
+    <p>Add a YAML file to <code>src/data/</code>. See the README for an example.</p>
+</div>
+{% endif %}
+{% endblock %}

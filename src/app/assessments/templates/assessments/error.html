@@ -1,0 +1,9 @@
+{% extends "assessments/base.html" %}
+
+{% block content %}
+<div class="empty-state error-page">
+    <h1>Content configuration error</h1>
+    <p>{{ error }}</p>
+    <p>Check the assessment, solution, or student YAML file.</p>
+</div>
+{% endblock %}

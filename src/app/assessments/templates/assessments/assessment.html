@@ -1,0 +1,157 @@
+{% extends "assessments/base.html" %}
+
+{% block title %}{{ assessment.title }} · {{ course_title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb"><a href="{% url 'home' %}">← All assessments</a></nav>
+
+<header class="assessment-heading">
+    <span class="kind-badge">{{ assessment.kind }}</span>
+    <h1>{{ assessment.title }}</h1>
+    {% if assessment.due_at %}
+    <p class="due-date">
+        Due: {{ assessment.due_at|date:"F j, Y, g:i A T" }}
+    </p>
+    {% endif %}
+    {% if assessment.instructions_html %}
+        <div class="instructions">{{ assessment.instructions_html|safe }}</div>
+    {% elif assessment.instructions %}
+        <div class="instructions">{{ assessment.instructions|linebreaksbr }}</div>
+    {% endif %}
+</header>
+
+{% if saved_notice %}
+<div class="notice notice-success">
+    Your answers were saved locally to <code>student_answer/</code>.
+    They are not submitted yet.
+    <a href="{% url 'home' %}">Return to the homepage to submit to GitHub.</a>
+</div>
+{% endif %}
+
+{% if locked %}
+{% if past_due and not solution_available %}
+<div class="notice notice-warning">
+    The due time has passed. Your answers are now read-only.
+</div>
+{% endif %}
+
+{% if solution_available %}
+<div class="notice notice-info">
+    Scores or solutions are available, so answers are now read-only.
+</div>
+
+{% if report.complete %}
+<section class="score-panel">
+    <span>Instructor score</span>
+    <strong>
+        {{ report.points_awarded|floatformat:-2 }}/{{ report.total_points|floatformat:-2 }}
+    </strong>
+    <span>{{ report.percentage }}%</span>
+</section>
+{% else %}
+<section class="score-panel">
+    <span>Grading in progress</span>
+    <strong>{{ report.points_awarded|floatformat:-2 }} points awarded</strong>
+    <span>{{ report.pending_points|floatformat:-2 }} points pending</span>
+</section>
+{% endif %}
+{% endif %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <div class="question-list">
+    {% for question in questions %}
+        <section class="question-card">
+            <div class="question-meta">
+                <span>Question {{ forloop.counter }}</span>
+                <span>{{ question.points|floatformat:-2 }} point{{ question.points|pluralize }}</span>
+            </div>
+
+            <div class="prompt">
+                {% if question.prompt_html %}
+                    {{ question.prompt_html|safe }}
+                {% else %}
+                    {{ question.prompt|linebreaksbr }}
+                {% endif %}
+            </div>
+
+            {% if locked %}
+                <div class="submitted-answer">
+                    <span>Your answer</span>
+                    <pre{% if question.type == "code" %} class="code-block"{% endif %}>{{ question.student_answer|default:"(blank)" }}</pre>
+                </div>
+            {% elif question.type == "choice" %}
+                <div class="choice-list">
+                {% for value, label in question.choices.items %}
+                    <label class="choice-row">
+                        <input type="radio" name="answer__{{ question.id }}" value="{{ value }}"
+                            {% if value == question.student_answer %}checked{% endif %}>
+                        <span class="choice-key">{{ value }}</span>
+                        <span>
+                            {% if question.choices_html %}
+                                {{ label|safe }}
+                            {% else %}
+                                {{ label }}
+                            {% endif %}
+                        </span>
+                    </label>
+                {% endfor %}
+                </div>
+            {% elif question.type == "textarea" %}
+                <textarea name="answer__{{ question.id }}" rows="{{ question.rows|default:8 }}">{{ question.student_answer }}</textarea>
+            {% elif question.type == "code" %}
+                <label class="input-label" for="answer__{{ question.id }}">{{ question.language }} code</label>
+                <textarea class="code-input" id="answer__{{ question.id }}"
+                    name="answer__{{ question.id }}" rows="{{ question.rows }}"
+                    spellcheck="false">{{ question.student_answer }}</textarea>
+            {% elif question.type == "number" %}
+                <input type="number" step="any" name="answer__{{ question.id }}" value="{{ question.student_answer }}">
+            {% else %}
+                <input type="text" name="answer__{{ question.id }}" value="{{ question.student_answer }}">
+            {% endif %}
+
+            {% if question.review %}
+            <div class="review-panel">
+                <div class="review-score">
+                {% if question.review.has_points %}
+                    <strong>{{ question.review.points_awarded|floatformat:-2 }} / {{ question.points|floatformat:-2 }} points</strong>
+                {% else %}
+                    <strong>Points pending</strong>
+                {% endif %}
+                </div>
+                {% if question.review.comment %}
+                    <div class="instructor-comment">
+                        <p class="review-label">Instructor comment</p>
+                        <div>{{ question.review.comment|linebreaksbr }}</div>
+                    </div>
+                {% endif %}
+                {% if question.review.correct_answer != None %}
+                    <p class="review-label">Correct answer</p>
+                    {% if question.type == "code" %}
+                        <pre class="code-block">{{ question.review.correct_answer }}</pre>
+                    {% else %}
+                        <pre>{{ question.review.correct_answer }}</pre>
+                    {% endif %}
+                {% endif %}
+                {% if question.review.solution_html %}
+                    <p class="review-label">Solution</p>
+                    <div>{{ question.review.solution_html|safe }}</div>
+                {% elif question.review.solution %}
+                    <p class="review-label">Solution</p>
+                    <div>{{ question.review.solution|linebreaksbr }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+    {% endfor %}
+    </div>
+
+    {% if not locked %}
+    <div class="form-actions">
+        <button class="button button-primary" type="submit">Save answers</button>
+        <span>Saving again updates the same JSON file.</span>
+    </div>
+    {% endif %}
+</form>
+{% endblock %}

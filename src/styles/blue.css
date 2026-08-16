@@ -1,0 +1,12 @@
+@import url("minimal.css");
+
+:root {
+    --background: #f4f7fb;
+    --text: #17243b;
+    --muted: #60708d;
+    --border: #cad6e7;
+    --accent: #175cd3;
+    --accent-text: #ffffff;
+    --radius: 8px;
+    --shadow: 0 10px 28px rgba(23, 92, 211, 0.08);
+}

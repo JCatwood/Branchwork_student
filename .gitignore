@@ -1,0 +1,8 @@
+.Rhistory
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.DS_Store
+.env
+src/app/staticfiles/

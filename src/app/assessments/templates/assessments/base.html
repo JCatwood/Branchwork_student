@@ -1,0 +1,42 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ course_title }}{% endblock %}</title>
+    <link rel="stylesheet" href="{% static theme_css %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <header class="site-header">
+        <div class="page-width header-content">
+            <a class="site-title" href="{% url 'home' %}">{{ course_title }}</a>
+            <span class="student-label">Student: {{ student_id }}</span>
+        </div>
+    </header>
+
+    <main class="page-width">
+        {% if config_error %}
+            <div class="notice notice-error">{{ config_error }}</div>
+        {% endif %}
+        {% if student_config_warning %}
+            <div class="notice notice-warning">
+                Replace <code>student_id</code> in <code>student.yaml</code> before answering.
+            </div>
+        {% endif %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="notice notice-{{ message.tags|default:'info' }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="site-footer page-width">
+        Answers are stored in <code>student_answer/</code>.
+    </footer>
+</body>
+</html>
