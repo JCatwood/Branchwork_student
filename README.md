@@ -48,7 +48,7 @@ source .venv/bin/activate
 ```
 Windows users please search online or discuss with TA for the corresponding commands.
 
-Next, install dependent python modules. On MacOS or Linux systems, an example is:
+Next, install dependent python modules. Here's an example using binary installations, for which dependencies are usually self-contained.
 ```bash
 python -m pip install -r requirements.txt --only-binary :all:
 ```
