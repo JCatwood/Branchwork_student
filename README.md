@@ -15,7 +15,7 @@ Use web browser:
 
 1. Sign in to GitHub.
 2. Select **Use this template** on the webpage of this app template repository.
-3. Create a new **private** repository under your own GitHub account.
+3. Create a new **private** repository under your own GitHub account and name it `3349_2026F_<your name>`.
 4. Go to your private repository, select the `student.yaml` file, click `Edit this file`, change `1234567` in the `student_id` field to your actual student ID and commit changes.
 5. Add the instructor (ID: JCatwood) and TA (TBD) as collaborators.
 
@@ -31,11 +31,12 @@ cd <REPOSITORY_NAME>
 
 ## Configure git
 
-It is recommended that you configure your `git` before working on the homeworks. After verifying that `git` is available in your terminal, run
+You need to configure `git` before working on the homeworks. After verifying that `git` is available in your terminal, run
 ```bash
 git config user.name "<Student Name>"
 git config user.email "<student-email@example.com>"
 ```
+Make sure that the email you use is the same as that used for your Github account.
 
 ## Prepare Python
 
