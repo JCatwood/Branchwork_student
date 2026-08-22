@@ -14,10 +14,10 @@ runs only on the student's computer.
 Use web browser:
 
 1. Sign in to GitHub.
-2. Select **Use this template** on the webpage of this app template repository.
+2. Select **Use this template** on the top-right corner of this webpage.
 3. Create a new **private** repository under your own GitHub account and name it `3349_2026F_<your name>`.
 4. Go to your private repository, select the `student.yaml` file, click `Edit this file`, change `1234567` in the `student_id` field to your actual student ID and commit changes.
-5. Add the instructor (ID: JCatwood) and TA (TBD) as collaborators.
+5. Add the instructor (ID: JCatwood) as collaborator.
 
 On your laptop:
 1. Choose/create a local directory for this homework app
