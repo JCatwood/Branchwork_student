@@ -76,17 +76,13 @@
                 {% endif %}
             </div>
 
-            {% if locked %}
-                <div class="submitted-answer">
-                    <span>Your answer</span>
-                    <pre{% if question.type == "code" %} class="code-block"{% endif %}>{{ question.student_answer|default:"(blank)" }}</pre>
-                </div>
-            {% elif question.type == "choice" %}
+            {% if question.type == "choice" %}
                 <div class="choice-list">
                 {% for value, label in question.choices.items %}
                     <label class="choice-row">
                         <input type="radio" name="answer__{{ question.id }}" value="{{ value }}"
-                            {% if value == question.student_answer %}checked{% endif %}>
+                            {% if value == question.student_answer %}checked{% endif %}
+                            {% if locked %}disabled{% endif %}>
                         <span class="choice-key">{{ value }}</span>
                         <span>
                             {% if question.choices_html %}
@@ -97,6 +93,11 @@
                         </span>
                     </label>
                 {% endfor %}
+                </div>
+            {% elif locked %}
+                <div class="submitted-answer">
+                    <span>Your answer</span>
+                    <pre{% if question.type == "code" %} class="code-block"{% endif %}>{{ question.student_answer|default:"(blank)" }}</pre>
                 </div>
             {% elif question.type == "textarea" %}
                 <textarea name="answer__{{ question.id }}" rows="{{ question.rows|default:8 }}">{{ question.student_answer }}</textarea>
